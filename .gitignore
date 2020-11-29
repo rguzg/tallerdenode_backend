@@ -124,4 +124,7 @@ dist
 .history
 .ionide
 
+# Environment Variables
+.env
+
 # End of https://www.toptal.com/developers/gitignore/api/node,visualstudiocode
