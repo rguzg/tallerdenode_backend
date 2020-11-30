@@ -1,11 +1,14 @@
-import express from "express";
-import dotenv from "dotenv";
+const app = require("express");
+const dotenv = require("dotenv");
+const endpoints = require("./endpoints.js");
 
 // Middleware
-import notfound from "./middleware/notfound.js";
-
-const app = express();
+const notfound = require("./middleware/notfound.js");
 dotenv.config();
+
+app.get("/", (req, res, next) => {
+    return res.status(200).json({code: 200, message: endpoints});
+});
 
 app.use(notfound);
 
