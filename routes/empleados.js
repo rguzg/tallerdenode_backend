@@ -162,10 +162,7 @@ empleados.put("/:id([0-9]{1,})", async (req, res, next) => {
 
     if (id && nombre && apellidos) {
         // Verificar que si existe un empleado con esos nombre, que sea el mismo que se va a actualizar
-        if (
-            queryResult.length == 0 ||
-            (queryResult[0].nombre == nombre && queryResult[0].apellidos == apellidos)
-        ) {
+        if (queryResult.length == 0 || (queryResult[0].nombre == nombre && queryResult[0].apellidos == apellidos)){
             let query = `UPDATE empleados SET nombre = '${nombre}', apellidos = '${apellidos}', 
             telefono = '${telefono}', correo = '${correo}', direccion = '${direccion}' WHERE id = ${id}`;
 
