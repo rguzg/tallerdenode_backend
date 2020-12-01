@@ -27,6 +27,7 @@ async function createadmin(username, password, nombre, apellidos) {
             if (error.code == "ER_DUP_ENTRY") {
                 throw "Duplicate user";
             } else {
+                console.error(error);
                 throw Error;
             }
         })
