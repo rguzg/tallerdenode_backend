@@ -28,7 +28,7 @@ empleados.use(auth);
 empleados.get("/", async (req, res, next) => {
     const limit = Number(req.query.limit) || 20;
     const offset = Number(req.query.offset) || 0;
-    const nombre = req.query.nombre || '';
+    const nombre = req.query.nombre || "";
 
     let query = `SELECT * FROM empleados WHERE nombre LIKE '%${nombre}%' 
     LIMIT ${Number(limit)} OFFSET ${Number(offset)}`;
@@ -51,7 +51,7 @@ empleados.get("/", async (req, res, next) => {
 
     return res.status(200).json({
         code: 200,
-        message: {count: count[0]['COUNT(nombre)'], results: queryResult}
+        message: { count: count[0]["COUNT(nombre)"], results: queryResult },
     });
 });
 
@@ -70,7 +70,6 @@ empleados.post("/", async (req, res, next) => {
 
     // Verificación de que no exista un empleado con el mismo nombre y apellidos
     let query = `SELECT * FROM empleados WHERE nombre = '${nombre}' AND apellidos = '${apellidos}'`;
-    console.log(query);
     let queryResult = await db.query(query).catch(() => {
         return res.status(500).json({
             status: 500,
@@ -78,41 +77,156 @@ empleados.post("/", async (req, res, next) => {
         });
     });
 
-    if (queryResult.length == 0) {
-        query = queryBuilder("empleados", req.body);
-        console.log(query);
+    if (nombre && apellidos) {
+        if (queryResult.length == 0) {
+            query = queryBuilder("empleados", req.body);
 
-        queryResult = await db.query(query).catch((error) => {
-            console.log(error);
-            return res.status(500).json({
-                status: 500,
-                message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+            queryResult = await db.query(query).catch((error) => {
+                return res.status(500).json({
+                    status: 500,
+                    message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+                });
             });
-        });
 
-        return res.status(201).json({ status: 201, mesage: req.body });
+            return res.status(201).json({ status: 201, mesage: req.body });
+        } else {
+            return res.status(400).json({
+                status: 400,
+                message: {
+                    errors: ["Ya existe un empleado con este nombre y apellido"],
+                },
+            });
+        }
     } else {
         return res.status(400).json({
             status: 400,
             message: {
-                errors: ["Ya existe un usuario con este nombre y apellido"],
+                errors: [
+                    "Cuerpo de la petición incorrecta, los parámetros obligatorios de este endpoint son nombre y apellidos",
+                ],
             },
         });
     }
 });
 
 /*
-    Este endpoint actualiza la información de un empleado y retorna una copia del recurso actualizado
+    Este endpoint retorna la información de un empleado
+*/
+empleados.get("/:id([0-9]{1,})", async (req, res, next) => {
+    const { id } = req.params;
+
+    let query = `SELECT * FROM empleados WHERE id = ${id}`;
+
+    queryResult = await db.query(query).catch((error) => {
+        return res.status(500).json({
+            status: 500,
+            message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+        });
+    });
+
+    if (queryResult.length == 1) {
+        return res.status(200).json({
+            status: 200,
+            message: queryResult,
+        });
+    } else {
+        return res.status(404).json({
+            status: 404,
+            message: "Empleado no encontrado",
+        });
+    }
+});
+
+/*
+    Este endpoint actualiza la información de un empleado y retorna una estado 204
 
     La petición utiliza el MIME type application/x-www-form-urlencoded y tiene el siguiente formato:
-    - nombre (opcional)
-    - apellidos (opcional)
-    - telefono (opcional)
-    - correo (opcional)
-    - direccion (opcional)
+    - nombre
+    - apellidos
+    - telefono
+    - correo
+    - direccion
 */
-empleados.put("/", (req, res, next) => {
+empleados.put("/:id([0-9]{1,})", async (req, res, next) => {
+    const { id } = req.params;
+    const { nombre, apellidos, telefono, correo, direccion } = req.body;
 
+    // Verificación de que no exista un empleado con el mismo nombre y apellidos
+    let query = `SELECT nombre, apellidos FROM empleados WHERE nombre = '${nombre}' AND apellidos = '${apellidos}'`;
+    let queryResult = await db.query(query).catch(() => {
+        return res.status(500).json({
+            status: 500,
+            message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+        });
+    });
+
+    if (id && nombre && apellidos) {
+        // Verificar que si existe un empleado con esos nombre, que sea el mismo que se va a actualizar
+        if (
+            queryResult.length == 0 ||
+            (queryResult[0].nombre == nombre && queryResult[0].apellidos == apellidos)
+        ) {
+            let query = `UPDATE empleados SET nombre = '${nombre}', apellidos = '${apellidos}', 
+            telefono = '${telefono}', correo = '${correo}', direccion = '${direccion}' WHERE id = ${id}`;
+
+            queryResult = await db.query(query).catch((error) => {
+                return res.status(500).json({
+                    status: 500,
+                    message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+                });
+            });
+
+            if (queryResult.affectedRows == 1) {
+                return res.status(204).send();
+            } else {
+                return res.status(500).json({
+                    status: 500,
+                    message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+                });
+            }
+        } else {
+            return res.status(400).json({
+                status: 400,
+                message: {
+                    errors: ["Ya existe un empleado con este nombre y apellido"],
+                },
+            });
+        }
+    } else {
+        return res.status(400).json({
+            status: 400,
+            mesage: {
+                errors: [
+                    "Cuerpo de la petición incorrecta, los parámetros obligatorios de este endpoint son nombre y apellidos",
+                ],
+            },
+        });
+    }
+});
+
+/*
+    Este endpoint elimina un empleado y retorna una estado 204
+*/
+empleados.delete("/:id([0-9]{1,})", async (req, res, next) => {
+    const { id } = req.params;
+
+    let query = `DELETE FROM empleados WHERE id = ${id}`;
+
+    queryResult = await db.query(query).catch((error) => {
+        return res.status(500).json({
+            status: 500,
+            message: "Ocurrió un error de servidor. Intentalo de nuevo más tarde",
+        });
+    });
+
+    if (queryResult.affectedRows == 1) {
+        return res.status(204).send();
+    } else {
+        return res.status(404).json({
+            status: 404,
+            message: "Empleado no encontrado",
+        });
+    }
 });
 
 module.exports = empleados;
