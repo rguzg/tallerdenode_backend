@@ -3,6 +3,7 @@
 const db = require("../database");
 const bcrypt = require("bcrypt");
 const readline = require("readline-sync");
+const querybuilder = require("./querybuilder");
 
 /*  This function creates an administrator user.  
     
@@ -19,7 +20,7 @@ async function createadmin(username, password, nombre, apellidos) {
     let saltrounds = 10;
     let passwordhash = await bcrypt.hash(password, saltrounds);
 
-    let query = `INSERT INTO usuarios VALUES ('${username}', '${passwordhash}', '${nombre}', '${apellidos}');`;
+    let query = querybuilder('usuarios', {username, password, nombre, apellidos})
 
     await db
         .query(query)
