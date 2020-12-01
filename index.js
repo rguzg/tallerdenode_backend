@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const endpoints = require("./endpoints");
-
+const qb = require("./utilities/querybuilder");
 const app = express();
 
 // Middleware
