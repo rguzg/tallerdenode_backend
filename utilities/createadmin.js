@@ -20,7 +20,7 @@ async function createadmin(username, password, nombre, apellidos) {
     let saltrounds = 10;
     let passwordhash = await bcrypt.hash(password, saltrounds);
 
-    let query = querybuilder("usuarios", { username, passwordHash, nombre, apellidos });
+    let query = querybuilder("usuarios", { username, password: passwordhash, nombre, apellidos });
 
     await db
         .query(query)
