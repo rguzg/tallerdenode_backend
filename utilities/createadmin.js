@@ -1,6 +1,6 @@
 /*  Use the npm run createadmin command to create an administrator user from the console */
 
-const db = require("./database");
+const db = require("../database");
 const bcrypt = require("bcrypt");
 const readline = require("readline-sync");
 
@@ -72,12 +72,8 @@ createadmin(username, password, nombre, apellidos)
     })
     .catch((error) => {
         if (error == "Duplicate user") {
-            console.log(
-                "There's already an user with this username. Please try again"
-            );
+            console.log("There's already an user with this username. Please try again");
         } else {
-            console.error(
-                "User couldn't be created. Are you sure the SQL server is running?"
-            );
+            console.error("User couldn't be created. Are you sure the SQL server is running?");
         }
     });
