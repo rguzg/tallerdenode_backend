@@ -1,4 +1,4 @@
--- Database definitions for Taller de Node S.A. de C.V. Backend
+-- Definición de la base de datos para el backend de Taller de Node S.A. de C.V.
 
 CREATE DATABASE node;
 

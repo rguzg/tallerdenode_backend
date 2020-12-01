@@ -1,6 +1,8 @@
+const { end } = require("./database")
+
 const endpoints = {
     empleados: "/empleados",
     usuario: "/usuario"
 }
 
-export default endpoints;
+module.exports = endpoints;
