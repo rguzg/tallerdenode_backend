@@ -58,7 +58,7 @@ empleados.get("/", async (req, res, next) => {
 /*  
     Este endpoint agrega un nuevo empleado a la base de datos y retorna una copia del nuevo recurso
 
-    La petición utiliza el MIME type application/x-www-form-urlencoded y tiene el siguiente formato:
+    La petición utiliza el MIME type application/json y tiene el siguiente formato:
     - nombre
     - apellidos
     - telefono (opcional)
@@ -93,7 +93,7 @@ empleados.post("/", async (req, res, next) => {
             return res.status(400).json({
                 status: 400,
                 message: {
-                    errors: ["Ya existe un empleado con este nombre y apellido"],
+                    errors: "Ya existe un empleado con este nombre y apellido",
                 },
             });
         }
@@ -101,9 +101,8 @@ empleados.post("/", async (req, res, next) => {
         return res.status(400).json({
             status: 400,
             message: {
-                errors: [
+                errors:
                     "Cuerpo de la petición incorrecta, los parámetros obligatorios de este endpoint son nombre y apellidos",
-                ],
             },
         });
     }
@@ -127,7 +126,7 @@ empleados.get("/:id([0-9]{1,})", async (req, res, next) => {
     if (queryResult.length == 1) {
         return res.status(200).json({
             status: 200,
-            message: queryResult,
+            message: queryResult[0],
         });
     } else {
         return res.status(404).json({
@@ -138,9 +137,9 @@ empleados.get("/:id([0-9]{1,})", async (req, res, next) => {
 });
 
 /*
-    Este endpoint actualiza la información de un empleado y retorna una estado 204
+    Este endpoint actualiza la información de un empleado y retorna una estado 200
 
-    La petición utiliza el MIME type application/x-www-form-urlencoded y tiene el siguiente formato:
+    La petición utiliza el MIME type application/json y tiene el siguiente formato:
     - nombre
     - apellidos
     - telefono
@@ -162,7 +161,10 @@ empleados.put("/:id([0-9]{1,})", async (req, res, next) => {
 
     if (id && nombre && apellidos) {
         // Verificar que si existe un empleado con esos nombre, que sea el mismo que se va a actualizar
-        if (queryResult.length == 0 || (queryResult[0].nombre == nombre && queryResult[0].apellidos == apellidos)){
+        if (
+            queryResult.length == 0 ||
+            (queryResult[0].nombre == nombre && queryResult[0].apellidos == apellidos)
+        ) {
             let query = `UPDATE empleados SET nombre = '${nombre}', apellidos = '${apellidos}', 
             telefono = '${telefono}', correo = '${correo}', direccion = '${direccion}' WHERE id = ${id}`;
 
@@ -174,7 +176,9 @@ empleados.put("/:id([0-9]{1,})", async (req, res, next) => {
             });
 
             if (queryResult.affectedRows == 1) {
-                return res.status(204).send();
+                return res.status(200).json({
+                    status: 200,
+                });
             } else {
                 return res.status(500).json({
                     status: 500,
@@ -185,7 +189,7 @@ empleados.put("/:id([0-9]{1,})", async (req, res, next) => {
             return res.status(400).json({
                 status: 400,
                 message: {
-                    errors: ["Ya existe un empleado con este nombre y apellido"],
+                    errors: "Ya existe un empleado con este nombre y apellido",
                 },
             });
         }
@@ -193,16 +197,15 @@ empleados.put("/:id([0-9]{1,})", async (req, res, next) => {
         return res.status(400).json({
             status: 400,
             mesage: {
-                errors: [
+                errors:
                     "Cuerpo de la petición incorrecta, los parámetros obligatorios de este endpoint son nombre y apellidos",
-                ],
             },
         });
     }
 });
 
 /*
-    Este endpoint elimina un empleado y retorna una estado 204
+    Este endpoint elimina un empleado y retorna una estado 200
 */
 empleados.delete("/:id([0-9]{1,})", async (req, res, next) => {
     const { id } = req.params;
@@ -217,7 +220,9 @@ empleados.delete("/:id([0-9]{1,})", async (req, res, next) => {
     });
 
     if (queryResult.affectedRows == 1) {
-        return res.status(204).send();
+        return res.status(200).json({
+            status: 200,
+        });
     } else {
         return res.status(404).json({
             status: 404,

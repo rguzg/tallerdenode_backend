@@ -20,7 +20,7 @@ usuario.get("/", (req, res, next) => {
 /*  
     This endpoint returns a JSON Web Token if the request contains a valid username and password
 
-    The request uses the MIME type application/x-www-form-urlencoded and has the following format:
+    The request uses the MIME type application/json and has the following format:
     - username: Requesting user's username
     - password: Requesting user's password
 */
@@ -36,7 +36,7 @@ usuario.post("/login", async (req, res, next) => {
     });
 
     if (username && password) {
-        if (queryResult.length == 1) {
+        if (queryResult.length === 1 ) {
             let passwordHash = queryResult[0].password;
             let isPasswordCorrect = await bcrypt.compare(password, passwordHash);
 
@@ -49,7 +49,6 @@ usuario.post("/login", async (req, res, next) => {
                     },
                     process.env.SIGN_KEY
                 );
-
                 return res.status(200).json({ status: 200, message: { token: token } });
             } else {
                 return res.status(400).json({
@@ -57,9 +56,7 @@ usuario.post("/login", async (req, res, next) => {
                     message: "Invalid username or password",
                 });
             }
-        } else {
-            return res.status(400).json({ status: 400, message: "Invalid username or password" });
-        }
+        } 
     } else {
         return res.status(400).json({
             status: 400,
