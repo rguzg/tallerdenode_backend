@@ -11,10 +11,13 @@ const notfound = require("./middleware/notfound");
 const usuario = require("./routes/usuario");
 const empleados = require("./routes/empleados");
 const auth = require("./middleware/auth");
+const cors = require("./middleware/cors");
 
 dotenv.config();
 
+app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(cors);
 
 app.get("/", (req, res, next) => {
     return res.status(200).json({ code: 200, message: endpoints });
